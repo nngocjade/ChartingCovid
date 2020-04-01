@@ -1,0 +1,10 @@
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ct-chart {
+    max-width: 90vw;
+    max-height: 90vh;
+}
