@@ -8,3 +8,16 @@ body{
     max-width: 90vw;
     max-height: 90vh;
 }
+
+.toggle-btn{
+    padding: 8px;
+}
+
+.toggle-btn:not(:last-child){
+    margin-bottom: 4px;
+}
+
+.active{
+    background-color: #e6e6e6;
+    border-radius: 4px;
+}

@@ -21,7 +21,7 @@ let chartData = {
 let charOptions = {
   high: 0,
   low: 0,
-  filWidth: true,
+  fullWidth: true,
 };
 
 let variableData = {
@@ -37,9 +37,9 @@ fetch("https://covidtracking.com/api/us/daily")
   .then((dataArr) => {
     for (let index = 10; index >= 0; index--) {
       console.log(dataArr);
-      const daydata = data[index];
-      console.log(daydata);
-      let dateStr = day.date.toString();
+      const dayData = data[index];
+      console.log(dayData);
+      let dateStr = dayData.date.toString();
       chartData.labels.push(
         `${dateStr.substr(4, 2)}/${dateStr.substr(6, 2)}/${dateStr.substr(
           0,
@@ -66,11 +66,72 @@ fetch("https://covidtracking.com/api/us/daily")
       }
     }
     chartData.series[0] = variableData.totalCasesSeries;
+    console.log("Chart Data:", chartData);
     myChart = new Chartist.Line(".ct-chart", chartData, chartOptions);
     creatButton();
-  })
+  });
 
+function creatButton() {
+  let buttons = document.createElement("div");
+  buttons.classList.add("buttons");
+  let buttonInfo = [
+    {
+      txt: "Hospitalized",
+      attr: "hospitalized",
+    },
+    {
+      txt: "Deceased",
+      attr: "death",
+    },
+    {
+      txt: "Total Cases",
+      attr: "totalCases",
+    },
+  ];
+  buttonInfo.forEach((buttonObj) => {
+    let btn = document.createElement("div");
+    btn.classList.add("toggle-btn");
+    if (buttonObj.attr === "totalCases") {
+      btn.classList.add("active");
+    }
+    btn.innerHTML = buttonObj.txt;
+    btn.addEventListener("click", toggleChartData);
+    btn.setAttribute("data-data_line", buttonObj.attr);
+    buttons.appendChild(btn);
+  });
+  document.body.prepend(buttons);
+}
 
-function creatButton(){
-    let buttons = 
+function toggleChartData(e) {
+  let dataLine = e.target.dataset.data_line;
+  chartData.series[0] = variableData["${dataLine}Series"];
+  animate();
+  myChart.update(chartData);
+  toggleActiveBtn(e.target);
+}
+
+function toggleActiveBtn(clickedBtn) {
+  let btns = Array.from(document.getElementsByClassName("toggle-btn"));
+  btns.forEach((btn) => btn.classList.remove("active"));
+  clickedBtn.classList.add("active");
+}
+
+function animate() {
+  myChart.on("draw", function (data) {
+    if (data.type === "line") {
+      data.element.animate({
+        d: {
+          begin: 2000 * data.index,
+          dur: 1000,
+          from: data.path
+            .clone()
+            .scale(1, 0)
+            .translate(0, data.chartRect.height())
+            .stringify(),
+          to: data.path.clone().stringify(),
+          easing: Chartist.Svg.Easing.easeOutQuint,
+        },
+      });
+    }
+  });
 }
